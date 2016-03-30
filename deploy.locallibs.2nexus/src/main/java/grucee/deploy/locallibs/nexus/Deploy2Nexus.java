@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 public class Deploy2Nexus {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		boolean upload = true;
+		boolean upload = false;
 		
 		List<String> cmds = start();
 		if (cmds == null || cmds.isEmpty()) {
@@ -55,19 +55,17 @@ public class Deploy2Nexus {
 
 			String inTemp = null;
 			in = new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"));
-			PrintUtils.print("----------inputstream-------------");
 
 			while ((inTemp = in.readLine()) != null) {
+				//丢弃
 				PrintUtils.print(inTemp);
 			}
-			PrintUtils.print("----------inputstream-------------");
 
 			error = new BufferedReader(new InputStreamReader(process.getErrorStream(), "utf-8"));
-			PrintUtils.print("----------errorstream-------------");
 			while ((inTemp = error.readLine()) != null) {
+				//丢弃
 				PrintUtils.print(inTemp);
 			}
-			PrintUtils.print("----------errorstream-------------");
 			
 			process.waitFor();
 		} catch (Exception e) {
@@ -111,12 +109,6 @@ public class Deploy2Nexus {
 			handleFile(f, depends, cmdList);
 		}
 
-		PrintUtils.print("----------cmd-------------");
-		for (String l : cmdList) {
-			PrintUtils.print(l);
-		}
-		PrintUtils.print("-----------------------");
-
 		PrintUtils.print("----------depends-------------");
 		PrintUtils.print(depends.toString());
 		PrintUtils.print("-----------------------");
@@ -155,17 +147,18 @@ public class Deploy2Nexus {
 		String fileName = file.getName();
 		fileName = StringUtils.substring(fileName, 0, StringUtils.indexOf(fileName, ".jar"));
 
-		int index = StringUtils.lastIndexOf(fileName, "-");
+		//int index = StringUtils.lastIndexOf(fileName, "-");
 
-		String cmdGroupId = "asiainfo";
-		String cmdArtifactId = null;
-		String cmdVersion = "1.0";
+		String cmdGroupId =ConfigProperties.getInstance().getGroupId();
+		String cmdArtifactId = fileName;
+		String cmdVersion = ConfigProperties.getInstance().getVersion();
 		String cmdFileName = file.getCanonicalPath();
 		String cmdUrl = ConfigProperties.getInstance().getNexusUrl();
 		String cmdRepositoryId = ConfigProperties.getInstance().getNexusRepositoryId();
-
+		
+		
 		// jar包名称中不包含-
-		if (index == -1) {
+		/*if (index == -1) {
 			cmdArtifactId = fileName;
 		} else {
 			// 取出版本号
@@ -180,9 +173,12 @@ public class Deploy2Nexus {
 			}
 		}
 
+		if (!cmdVersion.endsWith("-SNAPSHOT")) {
+			cmdVersion += "-SNAPSHOT";
+		}*/
 		// 拼接字符串
 		StringBuilder cmd = new StringBuilder();
-		cmd.append(ConfigProperties.getInstance().getMaven()).append(" deploy:deploy-file -DgroupId=")
+		cmd.append(ConfigProperties.getInstance().getMaven()).append(" deploy:deploy-file -e -X -DgroupId=")
 				.append(cmdGroupId).append(" -DartifactId=").append(cmdArtifactId).append(" -Dversion=")
 				.append(cmdVersion).append(" -Dpackaging=jar -Dfile=").append(cmdFileName).append(" -Durl=")
 				.append(cmdUrl).append(" -DrepositoryId=").append(cmdRepositoryId);

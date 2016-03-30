@@ -13,7 +13,17 @@ public class ConfigProperties {
 	private String nexusUrl = null;
 	private String nexusRepositoryId = null;
 	private String maven = null;
+	private String version = null;
+	private String groupId = null;
 	
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
 	public String getMaven() {
 		return maven;
 	}
@@ -68,5 +78,7 @@ public class ConfigProperties {
 		this.nexusUrl = StringUtils.trim(p.getProperty("nexus.url"));
 		this.nexusRepositoryId = StringUtils.trim(p.getProperty("nexus.repositoryId"));
 		this.maven = StringUtils.trim(p.getProperty("maven"));
+		this.version = StringUtils.trim(p.getProperty("version"));
+		this.groupId = StringUtils.trim(p.getProperty("groupId"));
 	}
 }
